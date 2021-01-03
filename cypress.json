@@ -1,3 +1,5 @@
 {
-    "projectId": "yoxtu4"
+    "projectId": "yoxtu4",
+    "screenshotOnRunFailure": false,
+    "defaultCommandTimeout": 30000
 }

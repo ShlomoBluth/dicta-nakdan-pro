@@ -2,7 +2,7 @@
 
 //run tests on the nakdan pro requests
 
-describe('BadRequests',()=>{
+describe('RequestsTests',()=>{
 
     
   beforeEach(() => {
