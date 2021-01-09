@@ -17,7 +17,7 @@ Cypress.Commands.add('nakdanProRequest',({status=200,message='',delaySeconds=0})
     cy.contains(message).should('not.exist')
   }
   cy.get('div[class="run-button"]').within(()=>{
-      cy.get('button').click()
+      cy.get('button').click({force: true})
   })
   
   if(message.length>0){
