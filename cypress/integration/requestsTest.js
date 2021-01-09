@@ -11,7 +11,7 @@ describe('RequestsTests',()=>{
 
   it('Error message for response with a delay of 2 minutes when clicking the run butten'+
   ' of nakdanpro page',()=>{
-    cy.nakdanRequest({
+    cy.nakdanProRequest({
       message:'לא ניתן לגשת כעת לשרת, נסה שוב מאוחר יותר',
       delaySeconds:60*2
     })
@@ -20,7 +20,7 @@ describe('RequestsTests',()=>{
   
   it('Error message for response with status code 500 when clicking the run butten of nakdanpro page',
   ()=>{
-    cy.nakdanRequest({
+    cy.nakdanProRequest({
       status:500,
       message:'לא ניתן לגשת כעת לשרת, נסה שוב מאוחר יותר'
     })
