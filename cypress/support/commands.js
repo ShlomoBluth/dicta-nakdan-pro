@@ -3,7 +3,11 @@ Cypress.Commands.add('nakdanProRequest',({url,status=200,message='',delaySeconds
     delayMs:1000*delaySeconds,
     statusCode: status
   },)
-  cy.get('a[class="welcome-close-link"]').click({force: true})
+  cy.get('body').then(($body) => {
+    if($body.find('a[class="welcome-close-link"]').length){
+      cy.get('a[class="welcome-close-link"]').click({force: true})
+    }
+  })
   cy.get('textarea[placeholder="הזן טקסט כאן"]').type('משה קיבל תורה')
   if(message.length>0){
     cy.contains(message).should('not.exist')
