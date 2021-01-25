@@ -1,20 +1,44 @@
-Cypress.Commands.add('nakdanProRequest',({url,status=200,message='',delaySeconds=0})=>{
-  cy.intercept('POST', '/api', {
-    delayMs:1000*delaySeconds,
-    statusCode: status
-  },)
+
+Cypress.Commands.add('resultsTests',(text)=>{
+  let nakdanResults=''
+  cy.get('[id*="span-C-word"]').each(($word)=>{
+      cy.get($word).each($letter=>{
+          nakdanResults=nakdanResults+$letter.text()
+      }).then(()=>{
+          nakdanResults=nakdanResults+' ' 
+      })
+  }).then(()=>{
+      expect(nakdanResults.substring(0,nakdanResults.length-1))
+      .to.eq(text)
+  }) 
+})
+
+
+Cypress.Commands.add('closeWelcomeWindow',()=>{
   cy.get('body').then(($body) => {
     if($body.find('a[class="welcome-close-link"]').length){
       cy.get('a[class="welcome-close-link"]').click({force: true})
     }
   })
-  cy.get('textarea[placeholder="הזן טקסט כאן"]').type('משה קיבל תורה')
+})
+
+Cypress.Commands.add('runNakdanPro',(text)=>{
+  cy.get('textarea[placeholder="הזן טקסט כאן"]').type(text)
+  cy.get('div[class="run-button"]').within(()=>{
+    cy.get('button').click({force: true})
+  })
+})
+
+Cypress.Commands.add('nakdanProRequest',({url,status=200,message='',delaySeconds=0})=>{
+  cy.intercept('POST', '/api', {
+    delayMs:1000*delaySeconds,
+    statusCode: status
+  },)
+  cy.closeWelcomeWindow()
   if(message.length>0){
     cy.contains(message).should('not.exist')
   }
-  cy.get('div[class="run-button"]').within(()=>{
-      cy.get('button').click({force: true})
-  })
+  cy.runNakdanPro('משה קיבל תורה')
 
   if(delaySeconds>0){
     cy.get('[class*="spinner"]').should('exist')
