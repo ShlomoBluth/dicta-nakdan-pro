@@ -1,15 +1,15 @@
 
 Cypress.Commands.add('resultsTests',(text)=>{
   let nakdanResults=''
-  cy.get('[id*="span-C-word"]').each(($word)=>{
-      cy.get($word).each($letter=>{
-          nakdanResults=nakdanResults+$letter.text()
-      }).then(()=>{
-          nakdanResults=nakdanResults+' ' 
-      })
+  cy.get('[class="token"]').each(($word)=>{
+    nakdanResults=nakdanResults+$word.text()
+      // cy.get($word).each($letter=>{
+      //     nakdanResults=nakdanResults+$letter.text()
+      // }).then(()=>{
+      //     nakdanResults=nakdanResults+' ' 
+      // })
   }).then(()=>{
-      expect(nakdanResults.substring(0,nakdanResults.length-1))
-      .to.eq(text)
+      expect(nakdanResults).to.eq(text)
   }) 
 })
 
@@ -30,7 +30,7 @@ Cypress.Commands.add('runNakdanPro',(text)=>{
 })
 
 Cypress.Commands.add('nakdanProRequest',({url,status=200,message='',delaySeconds=0})=>{
-  cy.intercept('POST', '/api', {
+  cy.intercept( url, {
     delayMs:1000*delaySeconds,
     statusCode: status
   },)

@@ -2,8 +2,9 @@
     "projectId": "yoxtu4",
     "screenshotOnRunFailure": false,
     "defaultCommandTimeout": 10000,
-    "retries": {
-        "runMode": 2,
-        "openMode": 2
+    "baseUrl":"https://sharing-nakdan-pro.netlify.app/",
+    "reporter": "cypress-multi-reporters",
+    "reporterOptions": {
+        "configFile": "reporter-config.json"
     }
 }
