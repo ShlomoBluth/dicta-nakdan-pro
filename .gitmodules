@@ -1,0 +1,3 @@
+[submodule "dicta-shared"]
+	path = dicta-shared
+	url = https://github.com/ShlomoBluth/dicta-shared.git
