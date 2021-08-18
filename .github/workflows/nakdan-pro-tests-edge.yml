@@ -1,0 +1,57 @@
+name: Nakdan pro tests edge
+
+on: 
+  #push
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 6,14,22 * * *'
+
+
+jobs:
+  cypress-e2e:
+    name: Run on edge
+    runs-on: ubuntu-latest
+    container: 
+      image: cypress/browsers:node14.10.1-edge88
+
+    steps:
+    - uses: actions/checkout@v1
+      with: 
+        submodules: true
+
+
+    - name: Install a project with a clean slate
+      run: |
+        npx ci
+        $(npm bin)/cypress cache path
+        $(npm bin)/cypress cache list
+        $(npm bin)/cypress verify
+
+    - name: Run edge tests
+      run: npx cypress run --browser edge --spec ./cypress/integration/basicTests.js
+
+    #- name: Run edge requests tests
+      #run: npx cypress run --browser edge --spec ./cypress/integration/requestsTests.js
+      #if: ${{ always() }}
+
+
+    - name: Copy test execution videos
+      run: |
+        mkdir public
+        cp -r cypress/videos public/videos
+      if: ${{ always() }}
+
+    - name: Merge test results into one
+      run: npm run report:merge
+      if: ${{ always() }}
+
+    - name: Generate HTML report
+      run: npm run report:generate
+      if: ${{ always() }}
+
+    - name: Deploy report page
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./public
+      if: ${{ always() }}

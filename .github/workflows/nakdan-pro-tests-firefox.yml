@@ -1,4 +1,4 @@
-name: Nakdan pro tests
+name: Nakdan pro tests firefox
 
 on: 
   #push
@@ -9,7 +9,7 @@ on:
 
 jobs:
   cypress-e2e:
-    name: Run on Chrome 89
+    name: Run on firefox
     runs-on: ubuntu-latest
     container: 
       image: cypress/browsers:node14.16.0-chrome89-ff86
@@ -28,16 +28,9 @@ jobs:
         $(npm bin)/cypress cache list
         $(npm bin)/cypress verify
 
-    - name: Run chrome tests
-      run: npx cypress run --browser chrome --spec ./cypress/integration/basicTests.js
-
     - name: Run firefox tests
       run: xvfb-run npx cypress run --browser firefox --spec ./cypress/integration/basicTests.js
       if: ${{ always() }}
-
-    #- name: Run chrome requests tests
-      #run: npx cypress run --browser chrome --spec ./cypress/integration/requestsTests.js
-      #if: ${{ always() }}
 
     #- name: Run firefox requests tests
       #run: npx cypress run --browser firefox --spec ./cypress/integration/requestsTests.js

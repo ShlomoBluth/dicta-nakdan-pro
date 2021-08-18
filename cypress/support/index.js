@@ -15,6 +15,7 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
+import '../../dicta-shared/shared.js'
 
 import addContext from 'mochawesome/addContext'
 
