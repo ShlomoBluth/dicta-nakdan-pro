@@ -1,0 +1,67 @@
+name: Edge tests
+
+on: 
+  #push
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 6,14,22 * * *'
+
+
+jobs:
+  cypress-e2e:
+    name: Run on Edge
+    runs-on: ubuntu-latest
+    container: 
+      image: cypress/browsers:node14.10.1-edge88
+
+
+    steps:
+
+    - uses: actions/checkout@v1
+      with: 
+        submodules: true
+
+
+    - name: Install a project with a clean slate
+      run: |
+        npx ci
+        $(npm bin)/cypress cache path
+        $(npm bin)/cypress cache list
+        $(npm bin)/cypress verify
+
+    
+    - name: Set var 
+      run: |
+        echo "TOOL_TESTS=$(grep TOOL_TESTS cypress.json | sed 's/TOOL_TESTS//' | sed 's/"//g' |sed 's/,//' | sed 's/://')" | tr -d ' ' >> $GITHUB_ENV
+        echo "REQUESTS_TESTS=$(grep REQUESTS_TESTS cypress.json | sed 's/REQUESTS_TESTS//' | sed 's/"//g' |sed 's/,//' | sed 's/://')" | tr -d ' ' >> $GITHUB_ENV 
+  
+
+    - name: Run edge tool tests 
+      run: xvfb-run -s '-screen 0 1280x800x24' npx cypress run --browser edge --spec ./cypress/integration/toolTests.js
+      if: ${{env.TOOL_TESTS == 'true'}} 
+
+    - name: Run edge requests tests
+      run: xvfb-run -s '-screen 0 1280x800x24' npx cypress run --browser edge --spec ./cypress/integration/requestsTests.js
+      if: ${{env.REQUESTS_TESTS == 'true'}}
+
+    - name: Copy test execution videos 
+      run: |
+        mkdir public
+        cp -r cypress/videos public/videos
+      if: ${{ always() }}
+
+    - name: Merge test results into one
+      run: npx mochawesome-merge cypress/results/json/*.json > index.json
+      if: ${{ always() }}
+
+    - name: Generate HTML report
+      run: npx marge index.json --reportDir public --assetsDir public/assets --reportPageTitle index.html
+      if: ${{ always() }}
+
+    - name: Deploy report page
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./public
+      if: ${{ always() }}
+                
