@@ -4,6 +4,7 @@
     "defaultCommandTimeout": 10000,
     "baseUrl":"https://sharing-nakdan-pro.netlify.app/",
     "reporter": "cypress-multi-reporters",
+    "failOnStatusCode": false,
     "reporterOptions": {
         "configFile": "dicta-shared/reporter-config.json"
     },
