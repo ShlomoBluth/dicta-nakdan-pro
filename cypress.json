@@ -9,6 +9,8 @@
         "configFile": "dicta-shared/reporter-config.json"
     },
     "env":{
+        "DEV_URL":"https://sharing-nakdan-pro.netlify.app/",
+        "LIVE_URL":"https://nakdanpro.dicta.org.il/",
         "TOOL_TESTS":true,
         "REQUESTS_TESTS":false,
         "RECORD_KEY":"ffe9ab71-730a-4dc2-997a-35c1d6199f21"
