@@ -23,7 +23,7 @@ Cypress.Commands.add('closeWelcomeWindow',()=>{
 })
 
 Cypress.Commands.add('runNakdanPro',(text)=>{
-  cy.get('textarea[placeholder="הזן טקסט כאן"]').type(text)
+  cy.get('textarea[placeholder="הזן טקסט כאן"]').type(text,{force: true})
   cy.get('div[class="run-button"]').within(()=>{
     cy.get('button').click({force: true})
   })
