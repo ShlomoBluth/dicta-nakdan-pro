@@ -35,31 +35,36 @@ jobs:
   
 
     - name: Run chrome tool tests 
-      run: xvfb-run -s '-screen 0 1280x800x24' npx cypress run --browser chrome --spec ./cypress/integration/toolTests.js
-      if: ${{env.TOOL_TESTS == 'true'}} 
-
-    - name: Run chtome requests tests
-      run: xvfb-run -s '-screen 0 1280x800x24' npx cypress run --browser chrome --spec ./cypress/integration/requestsTests.js
-      if: ${{env.REQUESTS_TESTS == 'true'}}
+      run: xvfb-run -s '-screen 0 1280x800x24' npx cypress run --browser chrome --spec ./cypress/integration/toolTests.js --config trashAssetsBeforeRuns=false
+      if: ${{env.TOOL_TESTS == 'true'}}
 
     - name: Copy test execution videos 
       run: |
         mkdir public
         cp -r cypress/videos public/videos
-      if: ${{ always() }}
+      if: ${{ always() && (env.TOOL_TESTS == 'true')}}
+
+    - name: Run chrome requests tests
+      run: xvfb-run -s '-screen 0 1280x800x24' npx cypress run --browser chrome --spec ./cypress/integration/requestsTests.js --config trashAssetsBeforeRuns=false
+      if: ${{always() && (env.REQUESTS_TESTS == 'true')}}
+
+    - name: Copy test execution videos 
+      run: |
+        cp cypress/videos/* public/videos
+      if: ${{ always() && (env.REQUESTS_TESTS == 'true') }}
 
     - name: Merge test results into one
       run: npx mochawesome-merge cypress/results/json/*.json > index.json
-      if: ${{ always() }}
+      if: ${{ always() && ((env.REQUESTS_TESTS == 'true') || (env.TOOL_TESTS == 'true')) }}
 
     - name: Generate HTML report
       run: npx marge index.json --reportDir public --assetsDir public/assets --reportPageTitle index.html
-      if: ${{ always() }}
+      if: ${{ always() && ((env.REQUESTS_TESTS == 'true') || (env.TOOL_TESTS == 'true')) }}
 
     - name: Deploy report page
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./public
-      if: ${{ always() }}
+      if: ${{ always() && ((env.REQUESTS_TESTS == 'true') || (env.TOOL_TESTS == 'true')) }}
                 
