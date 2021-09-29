@@ -28,6 +28,8 @@ jobs:
         $(npm bin)/cypress cache path
         $(npm bin)/cypress cache list
         $(npm bin)/cypress verify
+        mkdir public
+        mkdir public/videos
 
     
     - name: Set var 
@@ -36,19 +38,51 @@ jobs:
         echo "REQUESTS_TESTS=$(grep REQUESTS_TESTS cypress.json | sed 's/REQUESTS_TESTS//' | sed 's/"//g' |sed 's/,//' | sed 's/://')" | tr -d ' ' >> $GITHUB_ENV 
   
 
-    - name: Run edge tool tests 
-      run: xvfb-run -s '-screen 0 1280x800x24' npx cypress run --browser edge --spec ./cypress/integration/toolTests.js --config trashAssetsBeforeRuns=false
+    - name: Run edge tool tests
+      run: |
+        touch toolTest.log
+        toolTestsCommand='npx cypress run --browser edge --spec ./cypress/integration/toolTests.js \
+        --config trashAssetsBeforeRuns=false'
+        if $toolTestsCommand >> toolTest.log
+        then
+          cat toolTest.log
+        else
+          if grep -q 'Error: ffmpeg exited' toolTest.log \
+          || grep -q 'Because this error occurred during a `before each` hook' toolTest.log \
+          || grep -q 'EISDIR: illegal operation on a directory, read' toolTest.log;
+          then
+            cat toolTest.log; $toolTestsCommand
+          else
+            cat toolTest.log; exit 1
+          fi
+        fi 
       if: ${{env.TOOL_TESTS == 'true'}}
 
     - name: Copy test execution videos 
       run: |
-        mkdir public
-        cp -r cypress/videos public/videos
+        cp cypress/videos/* public/videos
       if: ${{ always() && (env.TOOL_TESTS == 'true')}}
 
     - name: Run edge requests tests
-      run: xvfb-run -s '-screen 0 1280x800x24' npx cypress run --browser edge --spec ./cypress/integration/requestsTests.js --config trashAssetsBeforeRuns=false
+      run: |
+        touch requestsTest.log
+        requestsTestsCommand='npx cypress run --browser edge --spec ./cypress/integration/requestsTests.js \
+        --config trashAssetsBeforeRuns=false'
+        if $requestsTestsCommand >> requestsTest.log
+        then
+          cat requestsTest.log
+        else
+          if grep -q 'Error: ffmpeg exited' requestsTest.log \
+          || grep -q 'Because this error occurred during a `before each` hook' requestsTest.log \
+          || grep -q 'EISDIR: illegal operation on a directory, read' requestsTest.log;
+          then
+            cat requestsTest.log; $requestsTestsCommand
+          else
+            cat requestsTest.log; exit 1
+          fi
+        fi 
       if: ${{always() && (env.REQUESTS_TESTS == 'true')}}
+
 
     - name: Copy test execution videos 
       run: |
