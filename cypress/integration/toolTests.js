@@ -25,9 +25,10 @@ urls.forEach((urlValue,urlKey)=>{
             it('Modern nakdan',()=>{
                 cy.closeWelcomeWindow()
                 cy.get('button').contains('הגדרות ניקוד').click({force: true})
-                cy.get('label').contains('השמט דגשים שאינם נשמעים').siblings('input').click({force: true})
+                cy.intercept('/api').as('NakdanProRun')
                 cy.runNakdanPro('משה קיבל תורה מסיני')
-                cy.resultsTests('מֹשֶׁה קִבֵּל תוֹרָה מִסִינַי')
+                cy.wait('@NakdanProRun')
+                cy.resultsTests('מֹשֶׁה קִבֵּל תּוֹרָה מִסִּינַי')
             })
         
         })

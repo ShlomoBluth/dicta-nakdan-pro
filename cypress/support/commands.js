@@ -1,7 +1,7 @@
 
 Cypress.Commands.add('resultsTests',(text)=>{
   let nakdanResults=''
-  cy.get('[class="token"]').each(($word)=>{
+  cy.get('[class*="token"]').each(($word)=>{
     nakdanResults=nakdanResults+$word.text()
       // cy.get($word).each($letter=>{
       //     nakdanResults=nakdanResults+$letter.text()
