@@ -3,7 +3,7 @@
 //run basic tests on nakdan run
 const urls = new Map();
 urls.set('live',Cypress.env('LIVE_URL'))
-urls.set('dev',Cypress.env('DEV_URL')) 
+//urls.set('dev',Cypress.env('DEV_URL')) 
 
 const sizes= new Map();
 sizes.set('desktop',[1000, 660])
