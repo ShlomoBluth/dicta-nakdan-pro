@@ -1,22 +1,28 @@
 name: Chrome tests
 
 on:
-  push
-  # schedule:
-  #   # * is a special character in YAML so you have to quote this string
-  #   - cron:  '0 6,14,22 * * *'
+  # push
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 6,14,22 * * *'
 
 
 jobs:
   cypress-e2e:
     name: Run on Chrome 89
     runs-on: ubuntu-latest
+
+
+    
+
     container: 
       image: cypress/browsers:node14.16.0-chrome89-ff86
       options: --user 1001
 
     steps:
-    - uses: actions/checkout@v1
+
+      
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -32,14 +38,15 @@ jobs:
 
     - name: Set var
       run: |
-        echo "TOOL_TESTS=$(grep TOOL_TESTS cypress.json | sed 's/TOOL_TESTS//' | sed 's/"//g' |sed 's/,//' | sed 's/://')" | tr -d ' ' >> $GITHUB_ENV
-        echo "REQUESTS_TESTS=$(grep REQUESTS_TESTS cypress.json | sed 's/REQUESTS_TESTS//' | sed 's/"//g' |sed 's/,//' | sed 's/://')" | tr -d ' ' >> $GITHUB_ENV 
+        ls cypress
+        echo "TOOL_TESTS=$(grep TOOL_TESTS cypress.config.js | sed 's/TOOL_TESTS//' | sed 's/"//g' |sed 's/,//' | sed 's/://')" | tr -d ' ' >> $GITHUB_ENV
+        echo "REQUESTS_TESTS=$(grep REQUESTS_TESTS cypress.config.js | sed 's/REQUESTS_TESTS//' | sed 's/"//g' |sed 's/,//' | sed 's/://')" | tr -d ' ' >> $GITHUB_ENV 
   
 
     - name: Run chrome tool tests
       run: |
         touch toolTest.log
-        toolTestsCommand='npx cypress run --browser chrome --spec ./cypress/integration/toolTests.js \
+        toolTestsCommand='npx cypress run --browser chrome --spec ./cypress/e2e/toolTests.js \
         --config trashAssetsBeforeRuns=false'
         if $toolTestsCommand >> toolTest.log
         then
@@ -64,7 +71,7 @@ jobs:
     - name: Run chrome requests tests
       run: |
         touch requestsTest.log
-        requestsTestsCommand='npx cypress run --browser chrome --spec ./cypress/integration/requestsTests.js \
+        requestsTestsCommand='npx cypress run --browser chrome --spec ./cypress/e2e/requestsTests.js \
         --config trashAssetsBeforeRuns=false'
         if $requestsTestsCommand >> requestsTest.log
         then
