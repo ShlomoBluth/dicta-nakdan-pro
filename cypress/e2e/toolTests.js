@@ -26,9 +26,9 @@ urls.forEach((urlValue,urlKey)=>{
                 cy.closeWelcomeWindow()
                 cy.get('button').contains('הגדרות ניקוד').click({force: true})
                 cy.intercept('/api').as('NakdanProRun')
-                cy.runNakdanPro('משה קיבל תורה מסיני')
+                cy.runNakdanPro('משֶׁה קִבֵּל תּוֹרָה מִסִּינַי')
                 cy.wait('@NakdanProRun')
-                cy.resultsTests('מֹשֶׁה קִבֵּל תּוֹרָה מִסִּינַי')
+                cy.resultsTests('משֶׁה קִבֵּל תּוֹרָה מִסִּינַי')
             })
         
         })

@@ -15,7 +15,7 @@
   },
   "homepage": "https://github.com/ShlomoBluth/dicta-nakdan-pro#readme",
   "devDependencies": {
-    "cypress": "^8.7.0",
+    "cypress": "^13.3.0",
     "cypress-multi-reporters": "^1.5.0",
     "mocha": "^8.3.2",
     "mochawesome": "^6.2.2",
