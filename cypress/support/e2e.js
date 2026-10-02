@@ -19,9 +19,18 @@ import '../../dicta-shared/index.js'
 
 
 
-Cypress.on('uncaught:exception', (err, runnable) => {
-    return false;
-});
+// Ignore only app errors known to be harmless; any other uncaught error fails the test,
+// so real JavaScript crashes on the site are reported.
+// (Before 2026-10 every error was ignored; a run across all dicta-* repos showed none occur.)
+const IGNORED_APP_ERRORS = [
+  /ResizeObserver loop (limit exceeded|completed with undelivered notifications)/,
+]
+
+Cypress.on('uncaught:exception', (err) => {
+  if (IGNORED_APP_ERRORS.some((re) => re.test(err.message))) {
+    return false
+  }
+})
 
 Cypress.on('window:confirm', () => true);
 

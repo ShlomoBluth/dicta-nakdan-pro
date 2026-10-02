@@ -1,103 +1,32 @@
 name: Firefox tests
 
 on:
-  # push
   schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '0 2,10,18 * * *'
+    - cron: '0 2,10,18 * * *'
+  workflow_dispatch: # manual run from the Actions tab; choose which specs to run
+    inputs:
+      tool-tests:
+        description: Run toolTests
+        type: boolean
+        default: true
+      requests-tests:
+        description: Run requestsTests
+        type: boolean
+        default: false
 
+concurrency:
+  group: firefox-tests
+  cancel-in-progress: false
+
+permissions:
+  contents: write # the called workflow deploys the report to gh-pages
 
 jobs:
-  cypress-e2e:
-    name: Run on firefox
-    runs-on: ubuntu-latest
-    container: 
-      image: cypress/browsers:node14.16.0-chrome89-ff86
-      options: --user 1001
-
-    steps:
-    - uses: actions/checkout@v4
-      with: 
-        submodules: true
-
-
-    - name: Install a project with a clean slate
-      run: |
-        npx ci
-        $(npm bin)/cypress cache path
-        $(npm bin)/cypress cache list
-        $(npm bin)/cypress verify
-        mkdir public
-        mkdir public/videos
-
-    - name: Set var 
-      run: |
-        echo "TOOL_TESTS=$(grep TOOL_TESTS cypress.config.js | sed 's/TOOL_TESTS//' | sed 's/"//g' |sed 's/,//' | sed 's/://')" | tr -d ' ' >> $GITHUB_ENV
-        echo "REQUESTS_TESTS=$(grep REQUESTS_TESTS cypress.config.js | sed 's/REQUESTS_TESTS//' | sed 's/"//g' |sed 's/,//' | sed 's/://')" | tr -d ' ' >> $GITHUB_ENV 
-  
-    
-    - name: Run firefox tool tests
-      run: |
-        touch toolTest.log
-        toolTestsCommand='npx cypress run --browser firefox --spec ./cypress/e2e/toolTests.js \
-        --config trashAssetsBeforeRuns=false'
-        if $toolTestsCommand >> toolTest.log
-        then
-          cat toolTest.log
-        else
-          if grep -q 'Error: ffmpeg exited' toolTest.log \
-          || grep -q 'Because this error occurred during a `before each` hook' toolTest.log \
-          || grep -q 'EISDIR: illegal operation on a directory, read' toolTest.log;
-          then
-            cat toolTest.log; $toolTestsCommand
-          else
-            cat toolTest.log; exit 1
-          fi
-        fi 
-      if: ${{env.TOOL_TESTS == 'true'}}
-
-    - name: Copy test execution videos 
-      run: |
-        cp cypress/videos/* public/videos
-      if: ${{ always() && (env.TOOL_TESTS == 'true')}}
-
-    - name: Run firefox requests tests
-      run: |
-        touch requestsTest.log
-        requestsTestsCommand='npx cypress run --browser firefox --spec ./cypress/e2e/requestsTests.js \
-        --config trashAssetsBeforeRuns=false'
-        if $requestsTestsCommand >> requestsTest.log
-        then
-          cat requestsTest.log
-        else
-          if grep -q 'Error: ffmpeg exited' requestsTest.log \
-          || grep -q 'Because this error occurred during a `before each` hook' requestsTest.log \
-          || grep -q 'EISDIR: illegal operation on a directory, read' requestsTest.log;
-          then
-            cat requestsTest.log; $requestsTestsCommand
-          else
-            cat requestsTest.log; exit 1
-          fi
-        fi 
-      if: ${{always() && (env.REQUESTS_TESTS == 'true')}}
-
-
-    - name: Copy test execution videos 
-      run: |
-        cp cypress/videos/* public/videos
-      if: ${{ always() && (env.REQUESTS_TESTS == 'true') }}
-
-    - name: Merge test results into one
-      run: npx mochawesome-merge cypress/results/json/*.json > index.json
-      if: ${{ always() && ((env.REQUESTS_TESTS == 'true') || (env.TOOL_TESTS == 'true')) }}
-
-    - name: Generate HTML report
-      run: npx marge index.json --reportDir public --assetsDir public/assets --reportPageTitle index.html
-      if: ${{ always() && ((env.REQUESTS_TESTS == 'true') || (env.TOOL_TESTS == 'true')) }}
-
-    - name: Deploy report page
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./public
-      if: ${{ always() && ((env.REQUESTS_TESTS == 'true') || (env.TOOL_TESTS == 'true')) }}
+  cypress:
+    uses: ShlomoBluth/workflows/.github/workflows/cypress-tests.yml@v2
+    with:
+      browser: firefox
+      # scheduled/push runs use the fixed value; manual runs use the checkbox
+      tool-tests: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.tool-tests) || 'true' }}
+      requests-tests: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.requests-tests) || 'false' }}
+    secrets: inherit

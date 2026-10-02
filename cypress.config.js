@@ -13,14 +13,12 @@ module.exports = defineConfig({
   env: {
     DEV_URL: 'https://sharing-nakdan-pro.netlify.app/',
     LIVE_URL: 'https://nakdanpro.dicta.org.il/',
-    TOOL_TESTS: true,
-    REQUESTS_TESTS: false,
-    RECORD_KEY: 'ffe9ab71-730a-4dc2-997a-35c1d6199f21',
   },
   e2e: {
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
+      require('./dicta-shared/videoCleanup')(on)
       return require('./cypress/plugins/index.js')(on, config)
     },
     baseUrl: 'https://sharing-nakdan-pro.netlify.app/',

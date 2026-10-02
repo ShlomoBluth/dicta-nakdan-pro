@@ -9,3 +9,8 @@ node_modules/
 
 
 gleekbfjekiniecknbkamfmkohkpodhe.crx
+
+# Test results (generated on every run)
+cypress/results
+public
+index.json
