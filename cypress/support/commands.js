@@ -31,7 +31,7 @@ Cypress.Commands.add('runNakdanPro',(text)=>{
 
 Cypress.Commands.add('nakdanProRequest',({url,status=200,message='',delaySeconds=0})=>{
   cy.intercept( url, {
-    delayMs:1000*delaySeconds,
+    delay:1000*delaySeconds,
     statusCode: status
   },)
   cy.closeWelcomeWindow()
